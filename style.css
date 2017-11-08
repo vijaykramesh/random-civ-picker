@@ -1,0 +1,32 @@
+.wrapper {
+    margin: 0 auto;
+    width: 60%;
+    font-family: sans-serif;
+    text-align: center;
+}
+
+#civ-exclusions {
+    margin: 0 auto;
+    width: 300px;
+}
+
+.row {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.civ-input {
+    width: 194px;
+}
+
+.col {
+    margin: 0 5px 0 0;
+}
+
+.btn {
+    width: 45px;
+}
+
+#submit-civ {
+    width: 300px;
+}
