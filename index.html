@@ -1,28 +1,39 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <title>Civilization V Random Civ Picker</title>
-        <link rel="stylesheet" href="style.css">
-    </head>
-    <body>
-        <div id="wrapper" class="wrapper">
-            <h1>Civilization V Random Civilization Picker</h1>
-            <div id="civ-exclusions">
-                <div class="row">
-                    <div class="col">
-                        <button type="button" class="btn delete-civ-btn">x</button>
-                    </div>
-                    <div class="col">
-                        <input class="civ-input" type="text" placeholder="Enter a civ to exclude...">
-                    </div>
-                    <div class="col">
-                        <button class="btn" type="button" id="add-civ-btn">+</button>
-                    </div>
-                </div>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Civilization Random Civ Chooser</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
+  </head>
+  <body>
+  <section class="section">
+    <div class="container">
+        <div class="columns is-centered">
+            <div class="column is-two-thirds">
+                <h1 class="title">
+                Click on civs to exclude them or just click Choose.
+                </h1>
+                <button id="show-excluded-civs-btn" type="button" name="show-excluded-civs-btn" class="button">Show Excluded Civs</button>
+                <button id="civ-choose-btn" type="button" name="civ-choose-btn" class="button is-primary">Choose</button>
             </div>
-            <button type="button" id="submit-civ">Pick a civ!</button>
         </div>
-    </body>
-    <script type="text/javascript" src="main.js"></script>
+
+        <div class="columns is-centered">
+            <div id="wrapper" class="column is-quarter is-narrow">
+
+            </div>
+        </div>
+
+        <div id="civ-grid-box" class="box is-hidden">
+            <div id="civ-grid" class="columns is-multiline">
+
+            </div>
+        </div>
+    </div>
+  </section>
+  <script type="text/javascript" src="main.js"></script>
+  </body>
 </html>

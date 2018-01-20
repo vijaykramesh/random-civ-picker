@@ -1,114 +1,133 @@
-let addCivBtn = document.getElementById('add-civ-btn');
-let submitCiv = document.getElementById('submit-civ');
-let civExclusions = document.querySelector('#civ-exclusions');
-let delCivBtn = document.getElementsByClassName('delete-civ-btn')[0];
-let civs = [];
-
-function deleteCiv(button){
-    let buttonRow = button.parentNode.parentNode;
-    civExclusions.removeChild(buttonRow);
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
-delCivBtn.addEventListener('click', (event) => { deleteCiv(event.target) });
+var civs = [
+    'america', 'arabia', 'assyria', 'austria', 'aztec',
+    'babylon', 'brazil', 'byzantium',
+    'carthage', 'celts', 'china',
+    'denmark',
+    'egypt', 'ethiopia',
+    'france',
+    'germany', 'greece',
+    'huns',
+    'inca', 'india', 'indonesia', 'iroquois',
+    'japan',
+    'korea',
+    'maya', 'mongolia', 'morocco',
+    'netherlands',
+    'ottomans',
+    'persia', 'poland', 'polynesia', 'portugal',
+    'rome', 'russia',
+    'shoshone', 'siam', 'songhai', 'spain', 'sweden',
+    'venice',
+    'zulu'
+]
 
-addCivBtn.addEventListener('click', () => {
-    let newRow = document.createElement('div');
-    newRow.setAttribute('class', 'row');
+var civGrid = document.getElementById('civ-grid');
 
-    let newLeftCol = document.createElement('div');
-    newLeftCol.setAttribute('class', 'col');
+for (var i = 0; i < 6; i++) {
+    var column = document.createElement('div');
+    column.classList.add('column');
+    column.classList.add('has-text-centered');
 
-    let newRightCol = document.createElement('div');
-    newRightCol.setAttribute('class', 'col');
+    for (var j = 0; j <= 6; j++) {
+        if (civs.length > j * 6 + i) {
+            var civIndex = j * 6 + i;
+            var gridImage = makeCivImage(civIndex);
+            var gridImageDescription = makeDescription(civIndex);
 
-    newRow.appendChild(newLeftCol);
-    newRow.appendChild(newRightCol);
+            var gridBox = document.createElement('div');
+            gridBox.id = 'grid-element-' + civs[civIndex];
+            gridBox.classList.add('grid-element');
 
-    let newInput = document.createElement('input');
-    newInput.setAttribute('class', 'civ-input');
-    newInput.setAttribute('type', 'text');
-    newInput.setAttribute('placeholder', 'Enter a civ to exclude...');
+            gridBox.appendChild(gridImage);
+            gridBox.appendChild(gridImageDescription);
 
-    let newDeleteBtn = document.createElement('button');
-    newDeleteBtn.setAttribute('type', 'button');
-    newDeleteBtn.setAttribute('class', 'btn delete-civ-btn');
-    newDeleteBtn.innerHTML = 'x';
+            column.append(gridBox);
+        }
+    }
+    civGrid.appendChild(column);
+}
 
-    civExclusions.appendChild(newRow);
-    newLeftCol.appendChild(newDeleteBtn);
-    newDeleteBtn.addEventListener('click', (event) => { deleteCiv(event.target) });
-    newRightCol.appendChild(newInput);
+var gridElements = document.getElementsByClassName('grid-element');
+for (var i = 0; i < gridElements.length; i++){
+    gridElements[i].addEventListener('click', clickGridElement);
+}
+
+function clickGridElement(event){
+    var clickedElementBox = event.target.parentElement;
+    if (!clickedElementBox.classList.contains('column')) {
+        var clickedImage = clickedElementBox.childNodes[0];
+        var clickedText = clickedElementBox.childNodes[1];
+        console.log(clickedElementBox);
+
+        if (clickedImage.classList.contains('dark-image')){
+            clickedImage.classList.remove('dark-image');
+            reAddCiv(clickedText.innerHTML.toLowerCase());
+        } else {
+            clickedImage.classList.add('dark-image');
+            removeCiv(clickedText.innerHTML.toLowerCase());
+        }
+    }
+}
+
+function removeCiv(civ){
+    var civIndex = civs.indexOf(civ);
+    if (civIndex > -1) {
+        civs.splice(civIndex, 1)
+    }
+}
+
+function reAddCiv(civ){
+    civs.push(civ);
+}
+
+function makeDescription(civIndex){
+    var description = document.createElement('p');
+    description.innerHTML = civs[civIndex].capitalize();
+    return description;
+}
+
+function makeCivImage(civIndex){
+    var img = document.createElement('img');
+    img.setAttribute('src', 'images/' + civs[civIndex] + '.png');
+    img.classList.add('image');
+    img.setAttribute('ondragstart', "return false;");
+    img.classList.add('no-select');
+    return img;
+}
+
+var mainWrapper = document.getElementById('wrapper');
+var chooseBtn = document.getElementById('civ-choose-btn');
+chooseBtn.addEventListener('click', function(event){
+    var existingChosenCivBox = document.getElementById('chosen-civ-box');
+    if (existingChosenCivBox) {
+        existingChosenCivBox.parentElement.removeChild(existingChosenCivBox);
+    }
+
+    if (civs.length > 0) {
+        var chosenCiv = civs[Math.floor(Math.random() * civs.length)];
+        var chosenCivBox = document.createElement('div');
+        chosenCivBox.id = 'chosen-civ-box';
+        chosenCivBox.classList.add('box');
+        chosenCivBox.classList.add('has-text-centered');
+        chosenCivBox.classList.add('is-centered');
+        var chosenCivIndex = civs.indexOf(chosenCiv);
+        var chosenCivImage = makeCivImage(chosenCivIndex);
+        var chosenDescription = makeDescription(chosenCivIndex);
+        chosenCivBox.appendChild(chosenCivImage);
+        chosenCivBox.appendChild(chosenDescription);
+        mainWrapper.appendChild(chosenCivBox);
+    }
 });
 
-function getExcludedCivs() {
-    let excludedCivInputs = Array.from(document.getElementsByClassName('civ-input'));
-    let excludedCivs = [];
-    excludedCivInputs.forEach(civInput => {
-        excludedCivs.push(civInput.value);
-    });
-    return excludedCivs;
-}
-
-function remove(list, element){
-    let lowercaseList = list.map(element => element.toLowerCase());
-    let index = lowercaseList.indexOf(element);
-    if(index !== -1){
-        list.splice(index, 1);
-    }
-}
-
-function initData(dlcs){
-    let gameCivs = {
-        base: ['America', 'Arabia', 'Aztecs',
-                'China', 'Egypt', 'England',
-                'France', 'Germany', 'Greece',
-                'India', 'Iroquois', 'Japan',
-                'Ottomans', 'Persia', 'Rome',
-                'Russia', 'Siam', 'Songhai'],
-        gk: ['Austria', 'Byzantium', 'Carthage',
-              'Celts', 'Ethiopia', 'Huns',
-              'Maya', 'Netherlands', 'Sweden'],
-        bnw: ['Assyria', 'Brazil', 'Indonesia',
-               'Morocco', 'Poland', 'Portugal',
-               'Shoshone', 'Venice', 'Zulus'],
-        babylon: ['Babylon'],
-        denmark: ['Denmark'],
-        spainInca: ['Spain', 'Inca'],
-        korea: ['Korea'],
-        mongolia: ['Mongolia'],
-        polynesia: ['Polynesia']
-    }
-
-    let civList = gameCivs['base'];
-
-    dlcs.forEach((dlc) => {
-        civList = civList.concat(gameCivs[dlc])
-    });
-
-    return civList;
-}
-
-submitCiv.addEventListener('click', () => {
-    let excludedCivs = getExcludedCivs();
-    civs = initData(['babylon']);
-    excludedCivs.forEach(civToExclude => {
-        civToExclude = civToExclude.toLowerCase();
-        remove(civs, civToExclude);
-    });
-
-    if(civs.length > 0){
-        civs = civs[Math.floor(Math.random() * civs.length)];
+var showExcludedCivsBtn = document.getElementById('show-excluded-civs-btn');
+var civGridBox = document.getElementById('civ-grid-box');
+showExcludedCivsBtn.addEventListener('click', function(event){
+    if (civGridBox.classList.contains('is-hidden')) {
+        civGridBox.classList.remove('is-hidden');
     } else {
-        civs = [];
+        civGridBox.classList.add('is-hidden');
     }
-
-    let wrapper = document.getElementById('wrapper');
-    let civText = document.getElementById('civ-text');
-    if (civText == null) {
-        civText = document.createElement('h1');
-        civText.setAttribute('id', 'civ-text');
-        wrapper.appendChild(civText);
-    }
-
-    civText.innerHTML = civs;
 });

@@ -1,32 +1,25 @@
-.wrapper {
-    margin: 0 auto;
-    width: 60%;
-    font-family: sans-serif;
-    text-align: center;
+.grid-element {
+    cursor: pointer;
+    padding: 3px;
 }
 
-#civ-exclusions {
-    margin: 0 auto;
-    width: 300px;
+.grid-element img {
+
 }
 
-.row {
-    display: flex;
-    margin-bottom: 10px;
+.grid-element:hover{
+    background-color: whitesmoke;
 }
 
-.civ-input {
-    width: 194px;
+.dark-image {
+    filter: brightness(50%);
 }
 
-.col {
-    margin: 0 5px 0 0;
-}
-
-.btn {
-    width: 45px;
-}
-
-#submit-civ {
-    width: 300px;
+.no-select {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Chrome, Opera */
 }
