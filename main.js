@@ -7,7 +7,7 @@ var civs = [
     'babylon', 'brazil', 'byzantium',
     'carthage', 'celts', 'china',
     'denmark',
-    'egypt', 'ethiopia',
+    'egypt', 'england', 'ethiopia',
     'france',
     'germany', 'greece',
     'huns',
@@ -31,7 +31,7 @@ for (var i = 0; i < 6; i++) {
     column.classList.add('column');
     column.classList.add('has-text-centered');
 
-    for (var j = 0; j <= 6; j++) {
+    for (var j = 0; j <= 8; j++) {
         if (civs.length > j * 6 + i) {
             var civIndex = j * 6 + i;
             var gridImage = makeCivImage(civIndex);
@@ -60,7 +60,6 @@ function clickGridElement(event){
     if (!clickedElementBox.classList.contains('column')) {
         var clickedImage = clickedElementBox.childNodes[0];
         var clickedText = clickedElementBox.childNodes[1];
-        console.log(clickedElementBox);
 
         if (clickedImage.classList.contains('dark-image')){
             clickedImage.classList.remove('dark-image');
@@ -86,6 +85,7 @@ function reAddCiv(civ){
 function makeDescription(civIndex){
     var description = document.createElement('p');
     description.innerHTML = civs[civIndex].capitalize();
+    description.classList.add('has-text-weight-bold');
     return description;
 }
 
@@ -94,6 +94,8 @@ function makeCivImage(civIndex){
     img.setAttribute('src', 'images/' + civs[civIndex] + '.png');
     img.classList.add('image');
     img.setAttribute('ondragstart', "return false;");
+    img.setAttribute('width', '128px');
+    img.setAttribute('height', '128px');
     img.classList.add('no-select');
     return img;
 }
@@ -115,6 +117,8 @@ chooseBtn.addEventListener('click', function(event){
         chosenCivBox.classList.add('is-centered');
         var chosenCivIndex = civs.indexOf(chosenCiv);
         var chosenCivImage = makeCivImage(chosenCivIndex);
+        chosenCivImage.setAttribute('width', '200px');
+        chosenCivImage.setAttribute('height', '200px');
         var chosenDescription = makeDescription(chosenCivIndex);
         chosenCivBox.appendChild(chosenCivImage);
         chosenCivBox.appendChild(chosenDescription);

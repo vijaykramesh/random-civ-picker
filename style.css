@@ -4,7 +4,8 @@
 }
 
 .grid-element img {
-
+    display: block;
+    margin: auto;
 }
 
 .grid-element:hover{
