@@ -93,6 +93,7 @@ function makeCivImage(civIndex){
     var img = document.createElement('img');
     img.setAttribute('src', 'images/' + civs[civIndex] + '.png');
     img.classList.add('image');
+    img.classList.add('centered-img');
     img.setAttribute('ondragstart', "return false;");
     img.setAttribute('width', '128px');
     img.setAttribute('height', '128px');
@@ -114,7 +115,6 @@ chooseBtn.addEventListener('click', function(event){
         chosenCivBox.id = 'chosen-civ-box';
         chosenCivBox.classList.add('box');
         chosenCivBox.classList.add('has-text-centered');
-        chosenCivBox.classList.add('is-centered');
         var chosenCivIndex = civs.indexOf(chosenCiv);
         var chosenCivImage = makeCivImage(chosenCivIndex);
         chosenCivImage.setAttribute('width', '200px');
