@@ -2,57 +2,65 @@ String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
-var civs = [
-    'america', 'arabia', 'assyria', 'austria', 'aztec',
-    'babylon', 'brazil', 'byzantium',
-    'carthage', 'celts', 'china',
-    'denmark',
-    'egypt', 'england', 'ethiopia',
-    'france',
-    'germany', 'greece',
-    'huns',
-    'inca', 'india', 'indonesia', 'iroquois',
-    'japan',
-    'korea',
-    'maya', 'mongolia', 'morocco',
-    'netherlands',
-    'ottomans',
-    'persia', 'poland', 'polynesia', 'portugal',
-    'rome', 'russia',
-    'shoshone', 'siam', 'songhai', 'spain', 'sweden',
-    'venice',
-    'zulu'
-]
+var gameSelector = document.getElementById('game-selector');
+var gameSelected = "civilization-v";
+var civs = [];
+var allCivs = [];
 
-var civGrid = document.getElementById('civ-grid');
+var jsonRequest = new XMLHttpRequest();
 
-for (var i = 0; i < 6; i++) {
-    var column = document.createElement('div');
-    column.classList.add('column');
-    column.classList.add('has-text-centered');
-
-    for (var j = 0; j <= 8; j++) {
-        if (civs.length > j * 6 + i) {
-            var civIndex = j * 6 + i;
-            var gridImage = makeCivImage(civIndex);
-            var gridImageDescription = makeDescription(civIndex);
-
-            var gridBox = document.createElement('div');
-            gridBox.id = 'grid-element-' + civs[civIndex];
-            gridBox.classList.add('grid-element');
-
-            gridBox.appendChild(gridImage);
-            gridBox.appendChild(gridImageDescription);
-
-            column.append(gridBox);
-        }
+jsonRequest.open('GET', 'games.json', false);
+jsonRequest.overrideMimeType("application/json");
+jsonRequest.onreadystatechange = function(){
+    if (jsonRequest.readyState === XMLHttpRequest.DONE) {
+        allCivs = JSON.parse(jsonRequest.responseText);
+        civs = allCivs[gameSelected]['factions'];
+        populateGrid(civs);
     }
-    civGrid.appendChild(column);
-}
+};
 
-var gridElements = document.getElementsByClassName('grid-element');
-for (var i = 0; i < gridElements.length; i++){
-    gridElements[i].addEventListener('click', clickGridElement);
+jsonRequest.send();
+
+gameSelector.addEventListener('change', function(event){
+    gameSelected = event.target.options[event.target.selectedIndex].dataset.gameName;
+    civs = allCivs[gameSelected]['factions'];
+    populateGrid(civs);
+});
+
+
+function populateGrid(civs){
+    console.log(civs);
+    var civGrid = document.getElementById('civ-grid');
+    civGrid.innerHTML = '';
+
+    for (var i = 0; i < 6; i++) {
+        var column = document.createElement('div');
+        column.classList.add('column');
+        column.classList.add('has-text-centered');
+
+        for (var j = 0; j <= 8; j++) {
+            if (civs.length > j * 6 + i) {
+                var civIndex = j * 6 + i;
+                var gridImage = makeCivImage(civIndex);
+                var gridImageDescription = makeDescription(civIndex);
+
+                var gridBox = document.createElement('div');
+                gridBox.id = 'grid-element-' + civs[civIndex];
+                gridBox.classList.add('grid-element');
+
+                gridBox.appendChild(gridImage);
+                gridBox.appendChild(gridImageDescription);
+
+                column.append(gridBox);
+            }
+        }
+        civGrid.appendChild(column);
+    }
+
+    var gridElements = document.getElementsByClassName('grid-element');
+    for (var i = 0; i < gridElements.length; i++){
+        gridElements[i].addEventListener('click', clickGridElement);
+    }
 }
 
 function clickGridElement(event){
@@ -91,7 +99,7 @@ function makeDescription(civIndex){
 
 function makeCivImage(civIndex){
     var img = document.createElement('img');
-    img.setAttribute('src', 'images/' + civs[civIndex] + '.png');
+    img.setAttribute('src', 'images/' + gameSelected + '/' + civs[civIndex] + '.png');
     img.classList.add('image');
     img.classList.add('centered-img');
     img.setAttribute('ondragstart', "return false;");

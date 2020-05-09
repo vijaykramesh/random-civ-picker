@@ -1,0 +1,41 @@
+{
+    "civilization-v" : {
+        "factions": [
+            "america", "arabia", "assyria", "austria", "aztec",
+            "babylon", "brazil", "byzantium",
+            "carthage", "celts", "china",
+            "denmark",
+            "egypt", "england", "ethiopia",
+            "france",
+            "germany", "greece",
+            "huns",
+            "inca", "india", "indonesia", "iroquois",
+            "japan",
+            "korea",
+            "maya", "mongolia", "morocco",
+            "netherlands",
+            "ottomans",
+            "persia", "poland", "polynesia", "portugal",
+            "rome", "russia",
+            "shoshone", "siam", "songhai", "spain", "sweden",
+            "venice",
+            "zulu"
+        ]
+    },
+    "civilization-vi": {
+        "factions": [
+            "america", "arabia", "athens", "aztec",
+            "brazil", "britain",
+            "china",
+            "egypt",
+            "france",
+            "germany",
+            "india",
+            "japan",
+            "kongo",
+            "norway",
+            "rome", "russia",
+            "scythia", "spain", "sparta", "sumeria"
+        ]
+    }
+}
