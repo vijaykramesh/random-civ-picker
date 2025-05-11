@@ -15,35 +15,54 @@
     <section class="section">
       <div class="container">
 
-        <!--‑‑ Controls‑‑-->
+          <!-- main controls (player count, game selector, buttons) -->
         <div class="columns is-centered">
-          <div class="column is-two‑thirds has-text-centered">
+          <div class="column is-two-thirds has-text-centered">
 
             <h1 class="title">Click civs to exclude them, then draft.</h1>
 
             <!-- number of players -->
-            <div class="field is-inline-block m-r-md">
-             
-              <div class="control">
-                <input id="player-count" class="input" type="number" min="1" max="12" value="4" style="width:100px;">
-              </div>
+            <div class="field has-addons m-r-md is-inline-block">
+              
+              <p class="control">
+                <input id="player-count"
+                      class="input"
+                      type="number"
+                      min="1" max="12"
+                      value="4"
+                      style="width:90px;">
+              </p>
             </div>
 
             <!-- game selector -->
-            <div class="select m-r-md">
+            <div class="select m-r-md is-inline-block">
               <select id="game-selector">
-                <option data-game-name="civilization-v">Civilization V</option>
-                <!--<option data-game-name="civilization-vi">Civilization VI</option>-->
-                <!-- TODO Add Civ 7 -->
+                <option data-game-name="civilization-v">Civilization V</option>
+                <!-- <option data-game-name="civilization-vi">Civilization VI</option> -->
               </select>
             </div>
 
             <!-- action buttons -->
-            <button id="show-excluded-civs-btn" class="button m-r-sm">Show Excluded Civs</button>
-            <button id="civ-choose-btn" class="button is-primary">Draft</button>
+            <button id="show-excluded-civs-btn" class="button m-r-sm">
+              Show Excluded Civs
+            </button>
+            <button id="civ-choose-btn" class="button is-primary">
+              Draft
+            </button>
 
-          </div>
-        </div>
+            <!-- bots mode dropdown -->
+            <div class="field mt-3">
+              
+                <div class="select" style="width:auto;">
+                  <select id="bots-mode">
+                    <option value="always" selected>Add Venny & Denny</option>
+                    <option value="required">Only when required</option>
+                    <option value="none">No extra players</option>
+                </select>
+              </div>
+            
+          
+            </div>
 
         <!--‑‑ grid of all civs (images + names)‑‑-->
         <div id="civ-grid-box" class="box is-hidden">

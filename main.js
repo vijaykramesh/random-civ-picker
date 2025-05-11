@@ -1,4 +1,6 @@
-/* =========  Civ Draft main.js  ========= */
+/* =========================================================
+   Civilization Draft Picker – main.js  (bots mode persisted)
+   ========================================================= */
 
 /* ---------- helpers ---------- */
 String.prototype.capitalize = function () {
@@ -13,16 +15,23 @@ const shuffle = (a) => {
   return arr;
 };
 
-/* ---------- LZ‑String feature flag ---------- */
-const hasLZ = typeof LZString !== "undefined";
+/* ---------- compression detect ---------- */
+const hasLZ =
+  typeof LZString !== "undefined" &&
+  typeof LZString.compressToEncodedURIComponent === "function" &&
+  typeof LZString.decompressFromEncodedURIComponent === "function";
 
-/* ---------- encode / decode (dual mode) ---------- */
+/* ---------- encode / decode ---------- */
 function encodeDraft(obj) {
   const json = JSON.stringify(obj);
+  const base = btoa(unescape(encodeURIComponent(json)));
   if (hasLZ) {
-    return { key: "d", val: LZString.compressToEncodedURIComponent(json) };
+    const lz = LZString.compressToEncodedURIComponent(json);
+    return lz.length < base.length
+      ? { key: "d", val: lz }
+      : { key: "draft_id", val: base };
   }
-  return { key: "draft_id", val: btoa(unescape(encodeURIComponent(json))) };
+  return { key: "draft_id", val: base };
 }
 function decodeDraft(hash) {
   if (hash.startsWith("d=") && hasLZ) {
@@ -36,7 +45,7 @@ function decodeDraft(hash) {
   throw new Error("Unknown hash format");
 }
 
-/* ---------- KHAN gif ---------- */
+/* ---------- KHAN gif overlay ---------- */
 function showKhanGif() {
   if (document.getElementById("khan-overlay")) return;
   const overlay = Object.assign(document.createElement("div"), {
@@ -53,7 +62,7 @@ function showKhanGif() {
   setTimeout(() => overlay.remove(), 10000);
 }
 
-/* ---------- toggle picker ---------- */
+/* ---------- toggle picker grid ---------- */
 const togglePicker = () => civGridBox.classList.toggle("is-hidden");
 
 /* ---------- globals ---------- */
@@ -72,17 +81,18 @@ const showExcluded = qs("#show-excluded-civs-btn");
 const draftSection = qs("#draft-results");
 const draftTable = qs("#draft-table tbody");
 const playerInput = qs("#player-count");
+const botsModeSel = qs("#bots-mode"); // dropdown
 
-/* ---------- hash inspection ---------- */
+/* ---------- inspect hash ---------- */
 if (location.hash.length > 1) {
   try {
     pendingDraft = decodeDraft(location.hash.slice(1));
   } catch (e) {
-    console.warn("Bad hash ignored:", e);
+    console.warn("Bad hash ignored", e);
   }
 }
 
-/* ---------- load games.json (sync) ---------- */
+/* ---------- load games.json ---------- */
 const req = new XMLHttpRequest();
 req.open("GET", "games.json", false);
 req.overrideMimeType("application/json");
@@ -95,6 +105,7 @@ req.onreadystatechange = () => {
       [...gameSelector.options].forEach((o) => {
         if (o.dataset.gameName === gameSelected) o.selected = true;
       });
+      botsModeSel.value = pendingDraft.m || "always";
     }
 
     civs = allCivs[gameSelected].factions.slice();
@@ -148,7 +159,6 @@ function toggleCiv(e) {
   const img = box.querySelector("img");
   const civ = box.id.replace("grid-", "");
   const excluded = img.classList.toggle("dark-image");
-
   if (excluded) civs = civs.filter((c) => c !== civ);
   else if (!civs.includes(civ)) civs.push(civ);
 }
@@ -156,22 +166,15 @@ function toggleCiv(e) {
 /* ---------- draft ---------- */
 function draft() {
   const realPlayers = Math.max(1, parseInt(playerInput.value) || 1);
-  const bots = ["Venny", "Denny"];
-  const total = realPlayers + bots.length;
+  const mode = botsModeSel.value; // always | required | none
+  const pool = shuffle(civs.slice()); // copy
 
-  if (civs.length < total * 3) {
-    alert("Not enough civs available!");
-    return;
-  }
-
-  const pool = shuffle(civs);
   draftTable.innerHTML = "";
 
   const makeRow = (label) => {
     const tr = document.createElement("tr");
     tr.appendChild(Object.assign(document.createElement("td"), { textContent: label }));
     const rowCivs = [];
-
     for (let i = 0; i < 3; i++) {
       const civ = pool.pop();
       rowCivs.push(civ);
@@ -192,39 +195,73 @@ function draft() {
     return rowCivs;
   };
 
+  // human rows
   const assignments = [];
-  for (let i = 0; i < realPlayers; i++) assignments.push(makeRow(`Player ${i + 1}`));
+  let venicePicked = false;
+  let denmarkPicked = false;
+
+  for (let i = 0; i < realPlayers; i++) {
+    const row = makeRow(`Player ${i + 1}`);
+    assignments.push(row);
+    if (row.includes("venice")) venicePicked = true;
+    if (row.includes("denmark")) denmarkPicked = true;
+  }
+
+  // decide bots
+  const bots = [];
+  if (mode === "always") {
+    bots.push("Venny", "Denny");
+  } else if (mode === "required") {
+    if (venicePicked) bots.push("Venny");
+    if (denmarkPicked) bots.push("Denny");
+  }
+
+  if (pool.length < bots.length * 3) {
+    alert("Not enough civs for extra players!");
+    return;
+  }
   bots.forEach((b) => assignments.push(makeRow(b)));
 
   draftSection.classList.remove("is-hidden");
 
-  if (assignments.slice(0, realPlayers).some((row) => row.includes("mongolia"))) {
+  // KHAN check
+  if (assignments.slice(0, realPlayers).some((r) => r.includes("mongolia"))) {
     showKhanGif();
   }
 
+  // save hash
   const excluded = allCivs[gameSelected].factions.filter((c) => !civs.includes(c));
-  const draftObj = { g: gameSelected, p: realPlayers, x: excluded, a: assignments };
+  const draftObj = {
+    g: gameSelected,
+    p: realPlayers,
+    x: excluded,
+    a: assignments,
+    m: mode,
+  };
   const { key, val } = encodeDraft(draftObj);
   location.hash = `${key}=${val}`;
-  console.log("Hash set →", location.hash);
 }
 
 /* ---------- rebuild shared draft ---------- */
 function rebuildFromDraft(d) {
+  // exclusions
   d.x.forEach((civ) => {
     const img = document.querySelector(`#grid-${civ} img`);
     if (img) img.classList.add("dark-image");
   });
   civs = allCivs[d.g].factions.filter((c) => !d.x.includes(c));
 
+  // table
   draftTable.innerHTML = "";
-  const bots = ["Venny", "Denny"];
-  d.a.forEach((row, idx) => {
-    const label = idx < d.p ? `Player ${idx + 1}` : bots[idx - d.p];
+  const botsLabels = ["Venny", "Denny"];
+
+  d.a.forEach((rowCivs, idx) => {
+    const label =
+      idx < d.p ? `Player ${idx + 1}` : botsLabels[idx - d.p];
     const tr = document.createElement("tr");
     tr.appendChild(Object.assign(document.createElement("td"), { textContent: label }));
 
-    row.forEach((civ) => {
+    rowCivs.forEach((civ) => {
       const td = document.createElement("td");
       const img = document.createElement("img");
       img.src = `images/${d.g}/${civ}.png`;
@@ -241,7 +278,9 @@ function rebuildFromDraft(d) {
   });
 
   playerInput.value = d.p;
+  botsModeSel.value = d.m || "always";
   draftSection.classList.remove("is-hidden");
+
   if (d.a.slice(0, d.p).some((row) => row.includes("mongolia"))) showKhanGif();
 }
 
