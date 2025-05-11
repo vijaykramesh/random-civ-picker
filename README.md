@@ -1,11 +1,14 @@
-# Civilization V Draft Picker
+# Civilization V Draft Picker
 
-Forked from https://github.com/nocturnaltortoise/random-civ-picker
+Forked from <https://github.com/nocturnaltortoise/random-civ-picker>
 
-This lets you pick a draft for Civ5 multi-player, 3 Civs per player (with +2 drafts that are open for any human who gets Venice or Denmark).
-You can toggle Civs to disable by clicking "Show Excluded Civs".
+![Screenshot of the draft picker UI](images/screenshot.png)
+
+This lets you pick a draft for Civ 5 multi‑player—three civs per player (plus two
+extra for anyone who rolls Venice or Denmark).  
+Toggle civs to disable them by clicking **Show Excluded Civs**.
 
 Make sure to heed the Khall.
 
-## Todo:
-*Add Civ VII
+## TODO
+* Add Civ VII
