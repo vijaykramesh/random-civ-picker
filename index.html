@@ -3,43 +3,71 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Civilization Random Civ Chooser</title>
+    <title>Civilization Random Civ Chooser</title>
+
+    <!-- Bulma & local styles -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
     <link rel="stylesheet" href="style.css">
     <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
   </head>
+
   <body>
-  <section class="section">
-    <div class="container">
+    <section class="section">
+      <div class="container">
+
+        <!--‑‑ Controls‑‑-->
         <div class="columns is-centered">
-            <div class="column is-two-thirds">
-                <h1 class="title">
-                Click on civs to exclude them or just click Choose.
-                </h1>
-                <div class="select">
-                    <select id="game-selector">
-                        <option data-game-name="civilization-v">Civilization V</option>
-                        <option data-game-name="civilization-vi">Civilization VI</option>
-                    </select>
-                </div>
-                <button id="show-excluded-civs-btn" type="button" name="show-excluded-civs-btn" class="button">Show Excluded Civs</button>
-                <button id="civ-choose-btn" type="button" name="civ-choose-btn" class="button is-primary">Choose</button>
+          <div class="column is-two‑thirds has-text-centered">
+
+            <h1 class="title">Click civs to exclude them, then draft.</h1>
+
+            <!-- number of players -->
+            <div class="field is-inline-block m-r-md">
+              <label class="label">Players</label>
+              <div class="control">
+                <input id="player-count" class="input" type="number" min="1" max="12" value="2" style="width:100px;">
+              </div>
             </div>
+
+            <!-- game selector -->
+            <div class="select m-r-md">
+              <select id="game-selector">
+                <option data-game-name="civilization-v">Civilization V</option>
+                <option data-game-name="civilization-vi">Civilization VI</option>
+              </select>
+            </div>
+
+            <!-- action buttons -->
+            <button id="show-excluded-civs-btn" class="button m-r-sm">Show Excluded Civs</button>
+            <button id="civ-choose-btn" class="button is-primary">Draft</button>
+
+          </div>
         </div>
 
-        <div class="columns is-centered">
-            <div id="wrapper" class="column is-quarter is-narrow">
-
-            </div>
-        </div>
-
+        <!--‑‑ grid of all civs (images + names)‑‑-->
         <div id="civ-grid-box" class="box is-hidden">
-            <div id="civ-grid" class="columns is-multiline">
-
-            </div>
+          <div id="civ-grid" class="columns is-multiline"></div>
         </div>
-    </div>
-  </section>
-  <script type="text/javascript" src="main.js"></script>
+
+        <!--‑‑ draft results‑‑-->
+        <div id="draft-results" class="section is-hidden">
+          <h2 class="title is-4">Draft Results</h2>
+          <table id="draft-table" class="table is-fullwidth is-bordered">
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th>Civilization 1</th>
+                <th>Civilization 2</th>
+                <th>Civilization 3</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+      </div>
+    </section>
+
+    <script src="main.js"></script>
   </body>
 </html>
