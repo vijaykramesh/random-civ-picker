@@ -12,6 +12,14 @@ String.prototype.capitalize = function () {
     return a;
   }
   
+  /* encode / decode draft state into the hash */
+  function encodeDraft(obj) {
+    return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
+  }
+  function decodeDraft(str) {
+    return JSON.parse(decodeURIComponent(escape(atob(str))));
+  }
+  
   /* ---------- show / hide the picker grid ---------- */
   function togglePicker() {
     civGridBox.classList.toggle("is-hidden");
@@ -20,7 +28,8 @@ String.prototype.capitalize = function () {
   /* ---------- globals ---------- */
   let allCivs = {};
   let gameSelected = "civilization-v";
-  let civs = []; // current available pool (exclusions remove items)
+  let civs = []; // pool after exclusions
+  let pendingDraftData = null; // used when page loaded from a shared link
   
   /* ---------- DOM refs ---------- */
   const gameSelector = document.getElementById("game-selector");
@@ -32,6 +41,17 @@ String.prototype.capitalize = function () {
   const draftTable = document.querySelector("#draft-table tbody");
   const playerInput = document.getElementById("player-count");
   
+  /* ---------- check URL hash before loading civs ---------- */
+  (function inspectHash() {
+    if (location.hash.startsWith("#draft_id=")) {
+      try {
+        pendingDraftData = decodeDraft(location.hash.slice(10));
+      } catch (e) {
+        console.warn("Bad draft hash ignored:", e);
+      }
+    }
+  })();
+  
   /* ---------- load games.json (sync) ---------- */
   const req = new XMLHttpRequest();
   req.open("GET", "games.json", false);
@@ -39,8 +59,19 @@ String.prototype.capitalize = function () {
   req.onreadystatechange = () => {
     if (req.readyState === XMLHttpRequest.DONE) {
       allCivs = JSON.parse(req.responseText);
-      civs = allCivs[gameSelected].factions.slice(); // clone
-      populateGrid(); // build grid but keep it hidden
+      if (pendingDraftData) {
+        // override game if hash specified
+        gameSelected = pendingDraftData.g;
+        // reflect in dropdown
+        for (const opt of gameSelector.options) {
+          if (opt.dataset.gameName === gameSelected) opt.selected = true;
+        }
+      }
+      civs = allCivs[gameSelected].factions.slice();
+      populateGrid();
+  
+      // if hash present, build draft view and apply exclusions
+      if (pendingDraftData) reconstructDraft(pendingDraftData);
     }
   };
   req.send();
@@ -50,7 +81,6 @@ String.prototype.capitalize = function () {
     civGrid.innerHTML = "";
     const list = allCivs[gameSelected].factions;
   
-    // 6 columns × up to 9 rows → 54 slots (covers every civ count)
     for (let col = 0; col < 6; col++) {
       const column = document.createElement("div");
       column.classList.add("column", "has-text-centered");
@@ -64,14 +94,12 @@ String.prototype.capitalize = function () {
         box.id = `grid-${civ}`;
         box.className = "grid-element";
   
-        // image
         const img = document.createElement("img");
         img.src = `images/${gameSelected}/${civ}.png`;
         img.width = img.height = 128;
         img.className = "image centered-img no-select";
         img.ondragstart = () => false;
   
-        // label
         const p = document.createElement("p");
         p.textContent = civ.capitalize();
         p.className = "has-text-weight-bold";
@@ -84,18 +112,16 @@ String.prototype.capitalize = function () {
       civGrid.appendChild(column);
     }
   
-    /* KEEP the grid hidden until user toggles */
-    draftSection.classList.add("is-hidden"); // hide old results when grid refreshes
+    draftSection.classList.add("is-hidden"); // hide old results
   }
   
   /* ---------- toggle include / exclude ---------- */
   function toggleCiv(e) {
-    const box = e.currentTarget; // .grid-element
+    const box = e.currentTarget;
     const img = box.querySelector("img");
     const civ = box.id.replace("grid-", "");
   
-    const nowExcluded = img.classList.toggle("dark-image"); // dim / undim
-  
+    const nowExcluded = img.classList.toggle("dark-image");
     if (nowExcluded) {
       const i = civs.indexOf(civ);
       if (i !== -1) civs.splice(i, 1);
@@ -119,19 +145,21 @@ String.prototype.capitalize = function () {
     }
   
     const pool = shuffle(civs);
-    draftTable.innerHTML = ""; // clear previous rows
+    draftTable.innerHTML = "";
   
-    /* helper to build a row */
+    // helper
     const makeRow = (label) => {
       const tr = document.createElement("tr");
       const th = document.createElement("td");
       th.textContent = label;
       tr.appendChild(th);
   
+      const rowCivs = [];
       for (let i = 0; i < 3; i++) {
         const civ = pool.pop();
-        const td = document.createElement("td");
+        rowCivs.push(civ);
   
+        const td = document.createElement("td");
         const img = document.createElement("img");
         img.src = `images/${gameSelected}/${civ}.png`;
         img.width = img.height = 64;
@@ -145,24 +173,85 @@ String.prototype.capitalize = function () {
         tr.appendChild(td);
       }
       draftTable.appendChild(tr);
+      return rowCivs;
     };
   
-    /* human players first */
+    /* build table & capture assignments */
+    const assignments = [];
+  
     for (let i = 0; i < realPlayers; i++) {
-      makeRow(`Player ${i + 1}`);
+      assignments.push(makeRow(`Player ${i + 1}`));
     }
+    extraNames.forEach((name) => assignments.push(makeRow(name)));
   
-    /* Venny & Denny at the end */
-    extraNames.forEach((name) => makeRow(name));
+    draftSection.classList.remove("is-hidden");
   
+    /* ---- encode draft & push to hash ---- */
+    const excluded = allCivs[gameSelected].factions.filter(
+      (c) => !civs.includes(c)
+    );
+    const draftObj = {
+      g: gameSelected,
+      p: realPlayers,
+      x: excluded,
+      a: assignments,
+    };
+    location.hash = "draft_id=" + encodeDraft(draftObj);
+  }
+  
+  /* ---------- reconstruct a draft from URL ---------- */
+  function reconstructDraft(data) {
+    // restore exclusions
+    data.x.forEach((civ) => {
+      const box = document.getElementById(`grid-${civ}`);
+      if (box) {
+        const img = box.querySelector("img");
+        if (!img.classList.contains("dark-image")) {
+          img.classList.add("dark-image");
+        }
+      }
+    });
+    civs = allCivs[gameSelected].factions.filter(
+      (c) => !data.x.includes(c)
+    );
+  
+    // build table from assignments
+    draftTable.innerHTML = "";
+    const extraNames = ["Venny", "Denny"];
+  
+    data.a.forEach((rowCivs, idx) => {
+      const label =
+        idx < data.p ? `Player ${idx + 1}` : extraNames[idx - data.p];
+      const tr = document.createElement("tr");
+      const th = document.createElement("td");
+      th.textContent = label;
+      tr.appendChild(th);
+  
+      rowCivs.forEach((civ) => {
+        const td = document.createElement("td");
+        const img = document.createElement("img");
+        img.src = `images/${gameSelected}/${civ}.png`;
+        img.width = img.height = 64;
+  
+        const p = document.createElement("p");
+        p.textContent = civ.capitalize();
+        p.style.marginTop = "4px";
+  
+        td.append(img, p);
+        tr.appendChild(td);
+      });
+      draftTable.appendChild(tr);
+    });
+  
+    playerInput.value = data.p;
     draftSection.classList.remove("is-hidden");
   }
   
   /* ---------- events ---------- */
   gameSelector.addEventListener("change", (e) => {
-    gameSelected =
-      e.target.options[e.target.selectedIndex].dataset.gameName;
-    civs = allCivs[gameSelected].factions.slice(); // reset pool for new game
+    gameSelected = e.target.options[e.target.selectedIndex].dataset.gameName;
+    civs = allCivs[gameSelected].factions.slice();
+    location.hash = ""; // clear hash when switching games
     populateGrid();
   });
   
