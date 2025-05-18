@@ -59,7 +59,7 @@ function showKhanGif() {
   img.style.maxHeight = "80vh";
   overlay.appendChild(img);
   document.body.appendChild(overlay);
-  setTimeout(() => overlay.remove(), 10000);
+  setTimeout(() => overlay.remove(), 5000);
 }
 
 /* ---------- toggle picker grid ---------- */
