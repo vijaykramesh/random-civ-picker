@@ -24,3 +24,98 @@
     -ms-user-select: none; /* Internet Explorer/Edge */
     user-select: none; /* Chrome, Opera */
 }
+
+/* === Dark Mode Support === */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #363636;
+  --box-bg: #ffffff;
+  --box-border: #dbdbdb;
+  --hover-bg: whitesmoke;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.dark-mode {
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --box-bg: #1e1e1e;
+  --box-border: #303030;
+  --hover-bg: #2a2a2a;
+}
+
+.box {
+  background-color: var(--box-bg);
+  border-color: var(--box-border);
+}
+
+.grid-element:hover {
+  background-color: var(--hover-bg) !important;
+}
+/* === End Dark Mode Support === */
+
+/* === Dark Mode Form + Grid Tweaks === */
+.dark-mode select,
+.dark-mode .select select,
+.dark-mode .dropdown-content,
+.dark-mode .dropdown-item,
+.dark-mode .dropdown-menu {
+  background-color: var(--box-bg) !important;
+  color: var(--text-color) !important;
+  border-color: var(--box-border) !important;
+}
+
+.dark-mode select option {
+  background-color: var(--box-bg);
+  color: var(--text-color);
+}
+
+.dark-mode .select:not(.is-multiple):not(.is-loading)::after {
+  border-color: var(--text-color) !important;
+}
+
+.dark-mode .civ-grid,
+.dark-mode .grid-element {
+  background-color: var(--box-bg) !important;
+  color: var(--text-color) !important;
+  border-color: var(--box-border) !important;
+}
+/* === End Tweaks === */
+
+/* === Dark Mode Final Tweaks === */
+/* Draft table */
+.dark-mode table,
+.dark-mode thead th,
+.dark-mode tbody td,
+.dark-mode .table {
+  background-color: var(--box-bg) !important;
+  color: var(--text-color) !important;
+  border-color: var(--box-border) !important;
+}
+
+/* "Show Excluded Civs" button & generic buttons */
+.dark-mode .button:not(.is-primary):not(.is-danger):not(.is-link) {
+  background-color: var(--box-bg) !important;
+  color: var(--text-color) !important;
+  border-color: var(--box-border) !important;
+}
+
+.dark-mode .button:not(.is-primary):not(.is-danger):not(.is-link):hover {
+  background-color: var(--hover-bg) !important;
+}
+
+/* Number input for players */
+.dark-mode input[type="number"],
+.dark-mode .input[type="number"] {
+  background-color: var(--box-bg) !important;
+  color: var(--text-color) !important;
+  border-color: var(--box-border) !important;
+}
+
+.dark-mode input[type="number"]::placeholder {
+  color: var(--text-color) !important;
+}
+/* === End Tweaks === */

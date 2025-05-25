@@ -293,3 +293,24 @@ gameSelector.addEventListener("change", (e) => {
 });
 chooseBtn.addEventListener("click", draft);
 showExcluded.addEventListener("click", togglePicker);
+
+// === Dark Mode Toggle ===
+document.addEventListener('DOMContentLoaded', () => {
+  const toggle = document.getElementById('dark-mode-toggle');
+  if (!toggle) return;
+
+  const applyPref = (enabled) => {
+    document.documentElement.classList.toggle('dark-mode', enabled);
+  };
+
+  const stored = localStorage.getItem('darkMode') === 'true';
+  applyPref(stored);
+  toggle.checked = stored;
+
+  toggle.addEventListener('change', (e) => {
+    const enabled = e.target.checked;
+    localStorage.setItem('darkMode', enabled);
+    applyPref(enabled);
+  });
+});
+// === End Dark Mode Toggle ===
