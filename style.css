@@ -34,9 +34,14 @@
   --hover-bg: whitesmoke;
 }
 
+html, body {
+  height: 100%;
+}
+
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
+  min-height: 100vh;
 }
 
 .dark-mode {

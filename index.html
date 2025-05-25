@@ -9,6 +9,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
     <link rel="stylesheet" href="style.css">
     <script defer src="https://use.fontawesome.com/releases/v5.0.0/js/all.js"></script>
+  
+    <script>
+      (function () {
+        try {
+          const params = new URLSearchParams(window.location.hash.slice(1));
+          const dark = params.get('dark') === '1' || (!window.location.hash || window.location.hash === '#') && localStorage.getItem('darkMode') === 'true';
+          if (dark) document.documentElement.classList.add('dark-mode');
+        } catch (e) {}
+      })();
+    </script>
+
   </head>
 
   <body>
