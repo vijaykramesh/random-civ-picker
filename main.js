@@ -207,20 +207,34 @@ function draft() {
     if (row.includes("denmark")) denmarkPicked = true;
   }
 
+
   // decide bots
-  const bots = [];
   if (mode === "always") {
-    bots.push("Venny", "Denny");
+    ["Venny", "Denny"].forEach(b => assignments.push(makeRow(b)));
   } else if (mode === "required") {
-    if (venicePicked) bots.push("Venny");
-    if (denmarkPicked) bots.push("Denny");
+    let vennyRow = null;
+    if (venicePicked) {
+      vennyRow = makeRow("Venny");
+    }
+
+    let dennyRow = null;
+    if (denmarkPicked || (vennyRow && vennyRow.includes("denmark"))) {
+     dennyRow = makeRow("Denny");
+    }
+
+    // check if vennyRow = null but dennyRow has venice, if so we need to add a Venny row
+    if (!vennyRow && dennyRow && dennyRow.includes("venice")) {
+      vennyRow = makeRow("Venny");
+    }
+
+    if (vennyRow) {
+      assignments.push(vennyRow);
+    }
+    if (dennyRow) {
+      assignments.push(dennyRow);
+    }
   }
 
-  if (pool.length < bots.length * 3) {
-    alert("Not enough civs for extra players!");
-    return;
-  }
-  bots.forEach((b) => assignments.push(makeRow(b)));
 
   draftSection.classList.remove("is-hidden");
 
